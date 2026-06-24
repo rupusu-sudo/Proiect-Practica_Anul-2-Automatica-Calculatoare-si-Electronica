@@ -1,0 +1,1783 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platformă de Cercetare & Monitorizare Multi-Agent A2A</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --panel-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --text-main: #0f172a;
+            --text-secondary: #475569;
+            --primary-action: #2563eb;
+            --primary-hover: #1d4ed8;
+            --success: #16a34a;
+            --warning: #d97706;
+            --error: #dc2626;
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-mono: 'Roboto Mono', monospace;
+            --sidebar-bg: #18181b;
+            --sidebar-border: #27272a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-family);
+            font-size: 13px;
+            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar Design - Professional Console Style */
+        .sidebar {
+            width: 280px;
+            background-color: var(--sidebar-bg);
+            color: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--sidebar-border);
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 1000;
+            padding: 1.5rem 1rem;
+            transform: translateX(-265px);
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s;
+        }
+
+        .sidebar:hover {
+            transform: translateX(0);
+            box-shadow: 4px 0 16px rgba(0, 0, 0, 0.25);
+        }
+
+        .sidebar::after {
+            content: "⋮";
+            position: absolute;
+            right: 4px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #475569;
+            font-size: 14px;
+            font-weight: bold;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+            pointer-events: none;
+        }
+
+        .sidebar:hover::after {
+            opacity: 0;
+        }
+
+        .sidebar-header {
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--sidebar-border);
+            margin-bottom: 1.5rem;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .brand-badge {
+            font-weight: 800;
+            font-size: 13px;
+            background-color: #475569;
+            color: #ffffff;
+            padding: 3px 6px;
+            border-radius: 3px;
+            letter-spacing: 0.5px;
+        }
+
+        .brand-name {
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: -0.2px;
+            color: #ffffff;
+        }
+
+        .sidebar-project-info {
+            font-size: 11px;
+            color: #94a3b8;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .sidebar-project-university {
+            font-size: 10px;
+            color: #64748b;
+            margin-top: 2px;
+            font-style: italic;
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+            flex: 1;
+        }
+
+        .nav-section-title {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #64748b;
+            padding: 0.5rem 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Sidebar Tabs Button Styling */
+        .sidebar .tab-btn {
+            border: none;
+            background: transparent;
+            color: #94a3b8;
+            padding: 0.6rem 0.75rem;
+            font-size: 12px;
+            font-weight: 500;
+            text-align: left;
+            cursor: pointer;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.15s ease-in-out;
+            width: 100%;
+        }
+
+        .sidebar .tab-btn:hover {
+            background-color: #27272a;
+            color: #ffffff;
+        }
+
+        .sidebar .tab-btn.active {
+            background-color: #27272a;
+            color: #ffffff;
+            font-weight: 600;
+            border-left: 3px solid #cbd5e1;
+            border-radius: 0 4px 4px 0;
+            padding-left: calc(0.75rem - 3px);
+        }
+
+        .nav-icon {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+            opacity: 0.8;
+        }
+
+        /* Sidebar System Status Panel */
+        .sidebar-status-panel {
+            background-color: #27272a;
+            border: 1px solid var(--sidebar-border);
+            border-radius: 6px;
+            padding: 0.85rem;
+            margin-top: auto;
+        }
+
+        .status-title {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #94a3b8;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 12px;
+            font-weight: 600;
+            color: #f8fafc;
+            margin-bottom: 0.6rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .status-dot.online {
+            background-color: #cbd5e1;
+            box-shadow: 0 0 0 3px rgba(203, 213, 225, 0.2);
+        }
+
+        .status-dot.offline {
+            background-color: #64748b;
+            box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.2);
+        }
+
+        .status-details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.4rem;
+            font-size: 11px;
+            border-top: 1px solid var(--sidebar-border);
+            padding-top: 0.5rem;
+        }
+
+        .status-detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-label {
+            color: #64748b;
+            font-size: 9px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .detail-value {
+            color: #cbd5e1;
+            font-weight: 600;
+        }
+
+        /* Main Workspace Container */
+        .main-content {
+            margin-left: 15px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            transition: margin-left 0.2s ease-in-out;
+        }
+
+        /* Top Header Bar */
+        .content-header {
+            height: 56px;
+            background-color: var(--panel-bg);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 99;
+        }
+
+        .page-title-area {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .page-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: -0.2px;
+        }
+
+        .page-subtitle {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .header-metrics {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            font-size: 12px;
+        }
+
+        .header-metric-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            color: var(--text-secondary);
+        }
+
+        .header-metric-item strong {
+            color: var(--text-main);
+            font-family: var(--font-mono);
+            background-color: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 3px;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Content Body Wrapper */
+        .content-body {
+            padding: 1.5rem;
+            max-width: 1600px;
+            width: 100%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* Workspace Core Layout Grid */
+        .workspace-grid {
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        /* Cards Structure */
+        .card {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .card-header {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 0.65rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            background-color: #f8fafc;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-body {
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        /* Form Controls */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-main);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        textarea, input[type="text"] {
+            width: 100%;
+            background-color: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 0.6rem;
+            color: var(--text-main);
+            font-family: var(--font-family);
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.15s ease-in-out;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        textarea:focus, input[type="text"]:focus, select:focus {
+            border-color: var(--primary-action);
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+        }
+
+        select {
+            width: 100%;
+            background-color: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 0.5rem 0.6rem;
+            color: var(--text-main);
+            font-family: var(--font-family);
+            font-size: 13px;
+            outline: none;
+            cursor: pointer;
+            transition: border-color 0.15s ease-in-out;
+        }
+
+        /* Tab Content Panel */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Buttons Styling */
+        .btn-primary {
+            background-color: var(--primary-action);
+            color: #ffffff;
+            border: 1px solid var(--primary-hover);
+            border-radius: 4px;
+            padding: 0.65rem 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: background-color 0.15s ease-in-out;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-primary:disabled {
+            background-color: #93c5fd;
+            border-color: #93c5fd;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background-color: #ffffff;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 0.65rem 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.15s ease-in-out;
+        }
+
+        .btn-secondary:hover {
+            background-color: #f8fafc;
+            border-color: #cbd5e1;
+        }
+
+        .btn-secondary:disabled {
+            background-color: #f1f5f9;
+            color: #94a3b8;
+            cursor: not-allowed;
+            border-color: #e2e8f0;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        /* Grafana-style Metrics Dashboard */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+        }
+
+        .metric-card {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 1rem;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Visual accent line on top of metrics, like Grafana panels */
+        .metric-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background-color: var(--border-color);
+        }
+
+        .metric-card.blue::before { background-color: #64748b; }
+        .metric-card.green::before { background-color: #64748b; }
+        .metric-card.amber::before { background-color: #64748b; }
+        .metric-card.indigo::before { background-color: #64748b; }
+        .metric-card.teal::before { background-color: #64748b; }
+
+        .metric-title {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.4rem;
+        }
+
+        .metric-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-main);
+            font-family: var(--font-mono);
+            letter-spacing: -0.5px;
+        }
+
+        /* CI/CD Pipeline Style Timeline */
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 7px;
+            top: 10px;
+            bottom: 10px;
+            width: 2px;
+            background-color: var(--border-color);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 1.25rem;
+        }
+
+        .timeline-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .timeline-marker {
+            position: absolute;
+            left: -29px;
+            top: 6px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background-color: #ffffff;
+            border: 2px solid var(--border-color);
+            z-index: 2;
+            transition: all 0.2s ease;
+        }
+
+        /* Marker states matching classes from JS */
+        .timeline-marker.success {
+            border-color: var(--success);
+            background-color: var(--success);
+            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15);
+        }
+
+        .timeline-marker.active {
+            border-color: var(--primary-action);
+            background-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+            animation: pulse-active 1.5s infinite alternate;
+        }
+
+        .timeline-marker.error {
+            border-color: var(--error);
+            background-color: var(--error);
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
+        }
+
+        @keyframes pulse-active {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.15); }
+        }
+
+        .timeline-content {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.85rem 1.25rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .timeline-item.active-step .timeline-content {
+            border-color: var(--primary-action);
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.4rem;
+        }
+
+        .timeline-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        /* Status Badge Styling */
+        .status-badge {
+            font-size: 9px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 1px solid transparent;
+        }
+
+        .badge-pending {
+            background-color: #f1f5f9;
+            color: var(--text-secondary);
+            border-color: #e2e8f0;
+        }
+
+        .badge-active {
+            background-color: #eff6ff;
+            color: var(--primary-action);
+            border-color: #dbeafe;
+        }
+
+        .badge-success {
+            background-color: #f0fdf4;
+            color: var(--success);
+            border-color: #dcfce7;
+        }
+
+        .badge-error {
+            background-color: #fef2f2;
+            color: var(--error);
+            border-color: #fee2e2;
+        }
+
+        .timeline-details {
+            font-size: 12px;
+            color: var(--text-secondary);
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
+
+        /* High-density terminal block for pipeline metadata */
+        .timeline-meta {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border-color);
+            margin-top: 0.6rem;
+            padding-top: 0.6rem;
+            background-color: #f8fafc;
+            margin-left: -1.25rem;
+            margin-right: -1.25rem;
+            margin-bottom: -0.85rem;
+            padding-left: 1.25rem;
+            padding-right: 1.25rem;
+            padding-bottom: 0.85rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 0.4rem;
+        }
+
+        .meta-item {
+            display: flex;
+            gap: 0.3rem;
+            align-items: center;
+        }
+
+        .meta-item strong {
+            color: var(--text-main);
+        }
+
+        /* Key Points & Sources styling */
+        .key-points-list {
+            list-style-type: none;
+            padding-left: 0;
+            margin-top: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .key-point-item {
+            position: relative;
+            padding-left: 1.25rem;
+            font-size: 12px;
+            color: var(--text-main);
+            line-height: 1.5;
+        }
+
+        .key-point-item::before {
+            content: "•";
+            position: absolute;
+            left: 0.25rem;
+            color: var(--primary-action);
+            font-weight: bold;
+        }
+
+        .sources-list {
+            list-style-type: none;
+            padding-left: 0;
+            margin-top: 0.4rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .source-item a {
+            color: var(--primary-action);
+            text-decoration: none;
+            font-size: 12px;
+            word-break: break-all;
+        }
+
+        .source-item a:hover {
+            text-decoration: underline;
+        }
+
+        .source-validated-list {
+            list-style-type: none;
+            padding-left: 0;
+            margin-top: 0.4rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .source-validated-item {
+            font-size: 12px;
+            padding: 0.4rem 0.6rem;
+            border-radius: 4px;
+            position: relative;
+            padding-left: 1.75rem;
+            border: 1px solid transparent;
+            background-color: #f8fafc;
+        }
+
+        .source-validated-item.verified {
+            color: var(--text-main);
+            border-color: #dcfce7;
+            background-color: #f0fdf4;
+        }
+
+        .source-validated-item.verified::before {
+            content: "✓";
+            position: absolute;
+            left: 0.6rem;
+            color: var(--success);
+            font-weight: 800;
+        }
+
+        .source-validated-item.rejected {
+            color: var(--text-secondary);
+            border-color: #fee2e2;
+            background-color: #fef2f2;
+            text-decoration: line-through;
+        }
+
+        .source-validated-item.rejected::before {
+            content: "✗";
+            position: absolute;
+            left: 0.6rem;
+            color: var(--error);
+            font-weight: 800;
+        }
+
+        /* Database History Table Styling */
+        .table-container {
+            overflow-x: auto;
+            width: 100%;
+        }
+
+        .log-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            text-align: left;
+        }
+
+        .log-table th {
+            background-color: #f8fafc;
+            color: var(--text-secondary);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 10px;
+            letter-spacing: 0.5px;
+            padding: 0.65rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .log-table td {
+            padding: 0.65rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+
+        .log-table tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .log-table .mono {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        /* Score Display Widget */
+        .score-display {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--primary-action);
+            letter-spacing: -0.5px;
+            font-family: var(--font-mono);
+            display: flex;
+            align-items: baseline;
+            gap: 0.25rem;
+        }
+
+        .score-display span {
+            font-size: 32px;
+        }
+
+        .status-msg-success {
+            background-color: #f0fdf4;
+            border: 1px solid var(--success);
+            color: var(--success);
+            font-size: 12px;
+            padding: 0.6rem;
+            border-radius: 4px;
+            text-align: center;
+            margin-top: 0.5rem;
+            font-weight: 600;
+        }
+
+        /* Spinner Animation */
+        .spinner {
+            width: 12px;
+            height: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive Layout Rules */
+        @media (max-width: 1024px) {
+            body {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid var(--sidebar-border);
+                padding: 1rem;
+                transform: none !important;
+                transition: none !important;
+            }
+
+            .sidebar:hover {
+                transform: none !important;
+                box-shadow: none !important;
+            }
+
+            .sidebar::after {
+                display: none;
+            }
+
+            .sidebar-header {
+                padding-bottom: 1rem;
+                margin-bottom: 1rem;
+            }
+
+            .sidebar-nav {
+                flex-direction: row;
+                flex-wrap: wrap;
+                margin-bottom: 1rem;
+            }
+
+            .sidebar .tab-btn {
+                width: auto;
+            }
+
+            .sidebar-status-panel {
+                margin-top: 0;
+            }
+
+            .main-content {
+                margin-left: 0 !important;
+            }
+
+            .workspace-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-brand">
+                <span class="brand-badge">A2A</span>
+                <span class="brand-name">Portal Academic</span>
+            </div>
+            <div class="sidebar-project-info">
+                Sistem Multi-Agent de Cercetare
+            </div>
+        </div>
+
+        <div class="sidebar-nav">
+            <div class="nav-section-title">Module active</div>
+            
+            <!-- Standard Tab triggers linked to Javascript handlers -->
+            <button class="tab-btn active" onclick="switchTab('tab-orchestrate')">
+                <svg class="nav-icon" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                Procesare Documente
+            </button>
+            <button class="tab-btn" onclick="switchTab('tab-research')">
+                <svg class="nav-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                Modul Cercetare
+            </button>
+        </div>
+
+        <!-- System Status Panel at the bottom -->
+        <div class="sidebar-status-panel">
+            <div class="status-title">Stare Platformă</div>
+            <div class="status-row">
+                <span class="status-dot online" id="health-dot"></span>
+                <span id="health-text">Online</span>
+            </div>
+            <div class="status-details-grid">
+                <div class="status-detail-item">
+                    <span class="detail-label">Agenți:</span>
+                    <span class="detail-value" id="nav-active-agents">6</span>
+                </div>
+                <div class="status-detail-item">
+                    <span class="detail-label">Versiune:</span>
+                    <span class="detail-value">A2A/1.2</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTROL AREA -->
+    <div class="main-content">
+        <!-- Sticky Top Header Bar -->
+        <header class="content-header">
+            <div class="page-title-area">
+                <h1 class="page-title">Tablou de Bord Coordonator</h1>
+                <span class="page-subtitle">Orchestrare fluxuri de execuție academice A2A (Agent-to-Agent)</span>
+            </div>
+            <div class="header-metrics">
+                <div class="header-metric-item">
+                    <span>⏱ Latență medie:</span>
+                    <strong id="metric-avg-time">-</strong>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Body -->
+        <main class="content-body">
+            
+            <div class="workspace-grid">
+                <!-- Inputs Section (Left Side) -->
+                <section class="card">
+                    <div class="card-header">
+                        <span>Configurare date de intrare</span>
+                    </div>
+                    <div class="card-body">
+                        <!-- Tab-ul 1: Procesare Documente -->
+                        <div id="tab-orchestrate" class="tab-content active">
+                            <div class="form-group" style="margin-bottom:1rem;">
+                                <label for="input-text">Document de intrare</label>
+                                <textarea id="input-text" rows="12" placeholder="Introduceți textul sursă..."></textarea>
+                            </div>
+
+                            <div class="form-group" style="margin-bottom:1rem;">
+                                <label for="target-lang">Limba Țintă</label>
+                                <select id="target-lang">
+                                    <option value="English">Engleză (en)</option>
+                                    <option value="Spanish">Spaniolă (es)</option>
+                                    <option value="French">Franceză (fr)</option>
+                                    <option value="Romanian" selected>Română (ro)</option>
+                                    <option value="Italian">Italiană (it)</option>
+                                    <option value="German">Germană (de)</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group" style="margin-bottom:1.5rem;">
+                                <label for="priority-orchestrate">Prioritate</label>
+                                <select id="priority-orchestrate">
+                                    <option value="1">1 (Minimă)</option>
+                                    <option value="2">2</option>
+                                    <option value="3" selected>3 (Normală)</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5 (Maximă)</option>
+                                </select>
+                            </div>
+
+                            <button id="btn-submit-orchestrate" class="btn-primary" style="width:100%;">
+                                <span class="spinner" id="spinner-orchestrate" style="display:none;"></span>
+                                <span id="btn-text-orchestrate">Execută fluxul text</span>
+                            </button>
+                        </div>
+
+                        <!-- Tab-ul 2: Modulul de Cercetare -->
+                        <div id="tab-research" class="tab-content">
+                            <div class="form-group" style="margin-bottom:1rem;">
+                                <label for="research-query">Subiect Cercetare</label>
+                                <input type="text" id="research-query" placeholder="Ex: Alan Turing, Calcul Cuantic, OpenAI...">
+                            </div>
+
+                            <div class="form-group" style="margin-bottom:1.5rem;">
+                                <label for="priority-research">Prioritate</label>
+                                <select id="priority-research">
+                                    <option value="1">1 (Minimă)</option>
+                                    <option value="2">2</option>
+                                    <option value="3" selected>3 (Normală)</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5 (Maximă)</option>
+                                </select>
+                            </div>
+
+                            <div class="button-group">
+                                <button id="btn-research-summary" class="btn-secondary">
+                                    <span class="spinner" id="spinner-research-sum" style="display:none;"></span>
+                                    <span>Caută informații</span>
+                                </button>
+                                <button id="btn-research-report" class="btn-primary">
+                                    <span class="spinner" id="spinner-research-rep" style="display:none;"></span>
+                                    <span>Generează raport</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- A2A Execution Monitor (Right Side) -->
+                <section class="card">
+                    <h2 class="card-header" id="monitor-header">Monitorizare Execuție A2A (Flux Activ)</h2>
+                    <div class="card-body">
+                        <div class="timeline" id="active-timeline">
+                            <!-- Pasul 1 -->
+                            <div class="timeline-item" id="step-1">
+                                <div class="timeline-marker" id="marker-1"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-header">
+                                        <span class="timeline-title" id="title-1">[·] Inițializare Cerere</span>
+                                        <span class="status-badge badge-pending" id="badge-1">În așteptare</span>
+                                    </div>
+                                    <div class="timeline-details" id="details-1">
+                                        Se așteaptă pornirea unui flux multi-agent.
+                                    </div>
+                                    <div class="timeline-meta" id="meta-1" style="display:none;">
+                                        <div class="meta-item">Agent: <strong id="val-agent-1">coordinator</strong></div>
+                                        <div class="meta-item">Durată: <strong id="val-time-1">-</strong></div>
+                                        <div class="meta-item">ID Mesaj: <strong id="val-msg-1" class="mono">-</strong></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Pasul 2 -->
+                            <div class="timeline-item" id="step-2">
+                                <div class="timeline-marker" id="marker-2"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-header">
+                                        <span class="timeline-title" id="title-2">[·] Căutare Fapte & Web Resources</span>
+                                        <span class="status-badge badge-pending" id="badge-2">În așteptare</span>
+                                    </div>
+                                    <div class="timeline-details" id="details-2">
+                                        Așteaptă transmiterea către Agentul de Cercetare.
+                                    </div>
+                                    <div class="timeline-meta" id="meta-2" style="display:none;">
+                                        <div class="meta-item">Agent: <strong id="val-agent-2">researcher</strong></div>
+                                        <div class="meta-item">Durată: <strong id="val-time-2">-</strong></div>
+                                        <div class="meta-item">ID Mesaj: <strong id="val-msg-2" class="mono">-</strong></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Pasul 3 (Validare Surse) -->
+                            <div class="timeline-item" id="step-3">
+                                <div class="timeline-marker" id="marker-3"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-header">
+                                        <span class="timeline-title" id="title-3">[·] Evaluare Credibilitate & Scoring</span>
+                                        <span class="status-badge badge-pending" id="badge-3">În așteptare</span>
+                                    </div>
+                                    <div class="timeline-details" id="details-3">
+                                        Așteaptă primirea datelor de către Agentul de Validare.
+                                    </div>
+                                    <div class="timeline-meta" id="meta-3" style="display:none;">
+                                        <div class="meta-item">Agent: <strong id="val-agent-3">validator</strong></div>
+                                        <div class="meta-item">Durată: <strong id="val-time-3">-</strong></div>
+                                        <div class="meta-item">ID Mesaj: <strong id="val-msg-3" class="mono">-</strong></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Pasul 4 (Sinteză și Raportare) -->
+                            <div class="timeline-item" id="step-4">
+                                <div class="timeline-marker" id="marker-4"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-header">
+                                        <span class="timeline-title" id="title-4">[·] Sinteză și Elaborare Raport</span>
+                                        <span class="status-badge badge-pending" id="badge-4">În așteptare</span>
+                                    </div>
+                                    <div class="timeline-details" id="details-4">
+                                        Așteaptă finalizarea analizelor bibliografice.
+                                    </div>
+                                    <div class="timeline-meta" id="meta-4" style="display:none;">
+                                        <div class="meta-item">Agent: <strong id="val-agent-4">summarizer</strong></div>
+                                        <div class="meta-item">Durată: <strong id="val-time-4">-</strong></div>
+                                        <div class="meta-item">ID Mesaj: <strong id="val-msg-4" class="mono">-</strong></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Pasul 5 (Export Documente) -->
+                            <div class="timeline-item" id="step-5">
+                                <div class="timeline-marker" id="marker-5"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-header">
+                                        <span class="timeline-title" id="title-5">[·] Generare Formate Academice (PDF/DOCX)</span>
+                                        <span class="status-badge badge-pending" id="badge-5">În așteptare</span>
+                                    </div>
+                                    <div class="timeline-details" id="details-5">
+                                        Așteaptă scrierea documentelor pe disc de către Agentul de Export.
+                                    </div>
+                                    <div class="timeline-meta" id="meta-5" style="display:none;">
+                                        <div class="meta-item">Agent: <strong id="val-agent-5">exporter</strong></div>
+                                        <div class="meta-item">Durată: <strong id="val-time-5">-</strong></div>
+                                        <div class="meta-item">ID Mesaj: <strong id="val-msg-5" class="mono">-</strong></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Pasul 6: Rezultat -->
+                            <div class="timeline-item" id="step-6">
+                                <div class="timeline-marker" id="marker-6"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-header">
+                                        <span class="timeline-title" id="title-6">Rezultat Final</span>
+                                        <span class="status-badge badge-pending" id="badge-6">În așteptare</span>
+                                    </div>
+                                    <div class="timeline-details" id="details-6">
+                                        Redarea rezultatelor complete.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Panel: Source Validity scoring -->
+            <section class="card" id="validator-display-card" style="display:none;">
+                <h2 class="card-header">Credibilitate Surse</h2>
+                <div class="card-body" style="flex-direction: row; gap: 2rem; flex-wrap: wrap;">
+                    <div class="form-group" style="flex: 1; min-width: 200px;">
+                        <label>Scor Credibilitate General</label>
+                        <div class="score-display"><span id="val-trust-score-value">0</span> / 100</div>
+                    </div>
+                    
+                    <div class="form-group" style="flex: 2; min-width: 250px;">
+                        <label>Surse Verificate (Încredere Ridicată)</label>
+                        <ul class="source-validated-list" id="val-verified-sources-list"></ul>
+                    </div>
+
+                    <div class="form-group" style="flex: 2; min-width: 250px;" id="val-rejected-group">
+                        <label>Surse Respinte (Încredere Scăzută)</label>
+                        <ul class="source-validated-list" id="val-rejected-sources-list"></ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Results Output Area -->
+            <section class="card" id="results-display-card" style="display:none;">
+                <h2 class="card-header" id="results-title-header">Rezultate Procesate</h2>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label>Titlu Subiect / Document</label>
+                        <div id="result-main-title" style="font-size: 16px; font-weight:700; color: var(--primary-action);">N/A</div>
+                    </div>
+                    
+                    <div class="form-group" id="result-summary-group">
+                        <label>Rezumat Academic</label>
+                        <div id="result-summary-text" style="font-style: italic; color: var(--text-main); line-height: 1.6; border-left: 3px solid var(--primary-action); padding-left: 1rem; margin-top: 0.25rem;">N/A</div>
+                    </div>
+
+                    <div class="form-group" id="result-key-points-group">
+                        <label>Puncte Cheie Extrase</label>
+                        <ul class="key-points-list" id="result-key-points-list"></ul>
+                    </div>
+
+                    <div class="form-group" id="result-report-group" style="display:none;">
+                        <label>Raport Structurat Detaliat</label>
+                        <div id="result-report-text" style="white-space: pre-wrap; font-family: var(--font-family); color: var(--text-main); font-size: 13px; background-color: #f8fafc; border: 1px solid var(--border-color); padding: 1rem; border-radius: 4px; max-height: 400px; overflow-y: auto; line-height: 1.6;">N/A</div>
+                    </div>
+
+                    <!-- Export downloads buttons -->
+                    <div class="form-group" id="export-buttons-group" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+                        <label>Descărcare Fișiere Academice</label>
+                        <div class="button-group" style="margin-top: 0.5rem; max-width: 400px;">
+                            <button id="btn-export-pdf" class="btn-primary">Exportă PDF</button>
+                            <button id="btn-export-docx" class="btn-secondary">Exportă DOCX</button>
+                        </div>
+                        <div id="export-status-message" class="status-msg-success" style="display:none;">Document generat cu succes.</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Metrics panels grid (Grafana style) -->
+            <section class="card">
+                <h2 class="card-header">Metrici Platformă</h2>
+                <div class="metrics-grid" style="padding: 1.25rem;">
+                    <div class="metric-card blue">
+                        <div class="metric-title">Total mesaje</div>
+                        <div class="metric-value" id="metric-total-messages">0</div>
+                    </div>
+                    <div class="metric-card green">
+                        <div class="metric-title">Rată succes</div>
+                        <div class="metric-value" id="metric-success-rate">100%</div>
+                    </div>
+                    <div class="metric-card amber">
+                        <div class="metric-title">Media Scor Încredere</div>
+                        <div class="metric-value" id="metric-avg-trust-score">-</div>
+                    </div>
+                    <div class="metric-card indigo">
+                        <div class="metric-title">Documente Exportate</div>
+                        <div class="metric-value" id="metric-generated-documents">0</div>
+                    </div>
+                    <div class="metric-card teal">
+                        <div class="metric-title">Surse Validate</div>
+                        <div class="metric-value" id="metric-validated-sources">0</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Database History Table -->
+            <section class="card">
+                <h2 class="card-header">Istoric Cercetări Salvate (Baza de Date SQLite)</h2>
+                <div class="table-container">
+                    <table class="log-table">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Subiect Interogat</th>
+                                <th>Rezumat Istoric</th>
+                                <th>Surse Validate</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table-body">
+                            <tr id="empty-history-row">
+                                <td colspan="4" style="text-align: center; color: var(--text-secondary); padding: 1.5rem;">Nicio cercetare salvată în baza de date locală.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- CODE BACKEND INTEGRATION LOGIC -->
+    <script>
+        let currentActiveTab = "tab-orchestrate";
+        let totalLatencies = parseFloat(localStorage.getItem("totalLatencies") || "0");
+        let successfulRuns = parseInt(localStorage.getItem("successfulRuns") || "0");
+        let totalRuns = parseInt(localStorage.getItem("totalRuns") || "0");
+        let totalMessagesSent = parseInt(localStorage.getItem("totalMessagesSent") || "0");
+        
+        let activePdfFilename = null;
+        let activeDocxFilename = null;
+
+        function updateLocalMetricsUI() {
+            document.getElementById("metric-total-messages").textContent = totalMessagesSent;
+            document.getElementById("metric-success-rate").textContent = totalRuns > 0 ? `${Math.round((successfulRuns / totalRuns) * 100)}%` : "100%";
+            document.getElementById("metric-avg-time").textContent = totalRuns > 0 ? `${(totalLatencies / totalRuns).toFixed(3)}s` : "-";
+        }
+        updateLocalMetricsUI();
+
+        // Default Text
+        document.getElementById("input-text").value = `Inteligența Artificială (IA) transformă dezvoltarea software într-un ritm fără precedent. Prin integrarea sistemelor multi-agent moderne, sarcini complexe precum rezumarea codului, traducerea limbajelor, rutarea API-urilor și sinteza codului pot fi complet automatizate. Acești agenți comunică folosind protocoale standardizate (precum A2A) și funcționează de o manieră descentralizată. Folosind o topologie bazată pe microservicii, studenții pot dezvolta și teste agenți indepeendenți la nivel local, demonstrând fluxuri de lucru colaborative cu latență redusă și fiabilitate crescută.`;
+
+        function switchTab(tabId) {
+            document.querySelectorAll(".sidebar .tab-btn").forEach(btn => btn.classList.remove("active"));
+            document.querySelectorAll(".tab-content").forEach(content => content.classList.remove("active"));
+            
+            currentActiveTab = tabId;
+            
+            if (tabId === "tab-orchestrate") {
+                document.querySelector("button[onclick=\"switchTab('tab-orchestrate')\"]").classList.add("active");
+            } else {
+                document.querySelector("button[onclick=\"switchTab('tab-research')\"]").classList.add("active");
+            }
+            document.getElementById(tabId).classList.add("active");
+        }
+
+        async function checkHealth() {
+            try {
+                const res = await fetch("/health", { method: "POST" });
+                if (res.ok) {
+                    const data = await res.json();
+                    document.getElementById("health-dot").className = "status-dot online";
+                    document.getElementById("health-text").textContent = "Online";
+                } else {
+                    document.getElementById("health-dot").className = "status-dot offline";
+                    document.getElementById("health-text").textContent = "Offline (Eroare)";
+                }
+            } catch (err) {
+                document.getElementById("health-dot").className = "status-dot offline";
+                document.getElementById("health-text").textContent = "Offline (Inaccesibil)";
+            }
+        }
+        checkHealth();
+
+        // Load metrics & history
+        async function loadData() {
+            try {
+                // Încărcare Istoric
+                const resHist = await fetch("/research/history");
+                if (resHist.ok) {
+                    const data = await resHist.json();
+                    const tbody = document.getElementById("history-table-body");
+                    tbody.innerHTML = "";
+                    
+                    if (data.history && data.history.length > 0) {
+                        data.history.forEach(item => {
+                            const date = new Date(item.timestamp).toLocaleString("ro-RO");
+                            const row = document.createElement("tr");
+                            row.innerHTML = `
+                                <td class="mono">${date}</td>
+                                <td><strong>${item.query}</strong></td>
+                                <td style="color: var(--text-secondary); max-width: 380px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${item.summary}</td>
+                                <td class="mono" style="text-align: center;">${item.sources_count}</td>
+                            `;
+                            tbody.appendChild(row);
+                        });
+                    } else {
+                        tbody.innerHTML = `
+                            <tr id="empty-history-row">
+                                <td colspan="4" style="text-align: center; color: var(--text-secondary); padding: 1.5rem;">Nicio cercetare salvată în baza de date locală.</td>
+                            </tr>
+                        `;
+                    }
+                }
+
+                // Încărcare Metrici complexe din SQLite
+                const resMetrics = await fetch("/system/metrics");
+                if (resMetrics.ok) {
+                    const data = await resMetrics.json();
+                    if (data.status === "success") {
+                        const m = data.metrics;
+                        document.getElementById("metric-avg-trust-score").textContent = m.avg_trust_score ? `${m.avg_trust_score} / 100` : "-";
+                        document.getElementById("metric-generated-documents").textContent = m.generated_documents;
+                        document.getElementById("metric-validated-sources").textContent = m.validated_sources;
+                    }
+                }
+            } catch (err) {
+                console.error("Eroare la încărcarea datelor SQLite:", err);
+            }
+        }
+        loadData();
+
+        // Submit: Text Orchestration (Standard flow)
+        const btnSubmitOrchestrate = document.getElementById("btn-submit-orchestrate");
+        btnSubmitOrchestrate.addEventListener("click", async () => {
+            document.getElementById("monitor-header").textContent = "Monitorizare Execuție A2A (Flux: Rezumat & Traducere)";
+            
+            // Pasul 1
+            document.getElementById("title-1").textContent = "[✓] Agent Coordonator";
+            document.getElementById("badge-1").className = "status-badge badge-active";
+            document.getElementById("badge-1").textContent = "Rulare";
+            document.getElementById("details-1").innerHTML = "Inițializare flux text simplu...";
+            document.getElementById("meta-1").style.display = "none";
+            document.getElementById("step-1").classList.add("active-step");
+
+            // Pasul 2 (Dezactivat în flux simplu)
+            document.getElementById("title-2").textContent = "[·] Agent de Cercetare (Sărit)";
+            document.getElementById("badge-2").className = "status-badge badge-pending";
+            document.getElementById("badge-2").textContent = "Sărit";
+            document.getElementById("details-2").innerHTML = "Neutilizat în acest scenariu.";
+            document.getElementById("meta-2").style.display = "none";
+            document.getElementById("step-2").classList.remove("active-step");
+
+            // Pasul 3 (Dezactivat)
+            document.getElementById("title-3").textContent = "[·] Agent de Validare Surse (Sărit)";
+            document.getElementById("badge-3").className = "status-badge badge-pending";
+            document.getElementById("badge-3").textContent = "Sărit";
+            document.getElementById("details-3").innerHTML = "Neutilizat.";
+            document.getElementById("meta-3").style.display = "none";
+            document.getElementById("step-3").classList.remove("active-step");
+
+            // Pasul 4
+            document.getElementById("title-4").textContent = "[·] Agent de Rezumare";
+            document.getElementById("badge-4").className = "status-badge badge-pending";
+            document.getElementById("badge-4").textContent = "În așteptare";
+            document.getElementById("details-4").innerHTML = "Așteaptă datele amonte.";
+            document.getElementById("meta-4").style.display = "none";
+            document.getElementById("step-4").classList.remove("active-step");
+
+            // Pasul 5 (Dezactivat)
+            document.getElementById("title-5").textContent = "[·] Agent de Export (Sărit)";
+            document.getElementById("badge-5").className = "status-badge badge-pending";
+            document.getElementById("badge-5").textContent = "Sărit";
+            document.getElementById("details-5").innerHTML = "Neutilizat.";
+            document.getElementById("meta-5").style.display = "none";
+            document.getElementById("step-5").classList.remove("active-step");
+
+            document.getElementById("badge-6").className = "status-badge badge-pending";
+            document.getElementById("details-6").innerHTML = "Se va genera la final.";
+            document.getElementById("step-6").classList.remove("active-step");
+
+            btnSubmitOrchestrate.disabled = true;
+            document.getElementById("spinner-orchestrate").style.display = "inline-block";
+            document.getElementById("btn-text-orchestrate").textContent = "Se procesează...";
+
+            try {
+                const payload = {
+                    text: document.getElementById("input-text").value,
+                    target_language: document.getElementById("target-lang").value,
+                    priority: parseInt(document.getElementById("priority-orchestrate").value)
+                };
+
+                const res = await fetch("/orchestrate", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+                totalRuns++;
+                localStorage.setItem("totalRuns", totalRuns);
+
+                if (res.ok && data.status === "completed") {
+                    successfulRuns++;
+                    localStorage.setItem("successfulRuns", successfulRuns);
+                    const result = data.result;
+                    const elapsed = data.processing_time;
+
+                    // Update UI Coordinator
+                    document.getElementById("badge-1").className = "status-badge badge-success";
+                    document.getElementById("badge-1").textContent = "Finalizat";
+                    document.getElementById("details-1").innerHTML = "A coordonat cu succes fluxul.";
+                    document.getElementById("meta-1").style.display = "grid";
+                    document.getElementById("val-agent-1").textContent = "coordinator";
+                    document.getElementById("val-time-1").textContent = `${elapsed.toFixed(3)}s`;
+                    document.getElementById("val-msg-1").textContent = data.message_id;
+                    document.getElementById("step-1").classList.remove("active-step");
+
+                    // Update UI Summarizer
+                    document.getElementById("title-4").textContent = "[✓] Agent de Rezumare";
+                    document.getElementById("badge-4").className = "status-badge badge-success";
+                    document.getElementById("badge-4").textContent = "Finalizat";
+                    document.getElementById("details-4").innerHTML = `Rezumat generat cu succes: "${result.original_summary}"`;
+                    document.getElementById("meta-4").style.display = "grid";
+                    document.getElementById("val-agent-4").textContent = "summarizer";
+                    document.getElementById("val-time-4").textContent = `${result.summarizer_time.toFixed(3)}s`;
+                    document.getElementById("val-msg-4").textContent = "A2A/Intra-rețea";
+
+                    // Update UI Result
+                    document.getElementById("badge-6").className = "status-badge badge-success";
+                    document.getElementById("badge-6").textContent = "Succes";
+                    document.getElementById("details-6").innerHTML = "Datele s-au reîntors la client.";
+
+                    // Redare rezultate
+                    document.getElementById("results-display-card").style.display = "flex";
+                    document.getElementById("result-main-title").textContent = "Document Procesat (Rezumare & Traducere)";
+                    document.getElementById("result-summary-text").textContent = result.translated_text;
+                    document.getElementById("result-report-group").style.display = "none";
+                    document.getElementById("export-buttons-group").style.display = "none";
+                    document.getElementById("validator-display-card").style.display = "none";
+
+                    const pointsList = document.getElementById("result-key-points-list");
+                    pointsList.innerHTML = result.key_points.map(p => `<li class="key-point-item">${p}</li>`).join("");
+
+                    totalMessagesSent += 2;
+                    totalLatencies += elapsed;
+                    localStorage.setItem("totalMessagesSent", totalMessagesSent);
+                    localStorage.setItem("totalLatencies", totalLatencies);
+                    updateLocalMetricsUI();
+
+                } else {
+                    document.getElementById("badge-1").className = "status-badge badge-error";
+                    document.getElementById("badge-1").textContent = "Eroare";
+                    document.getElementById("details-1").innerHTML = data.error || "Eroare necunoscută.";
+                }
+            } catch (err) {
+                document.getElementById("badge-1").className = "status-badge badge-error";
+                document.getElementById("details-1").innerHTML = `Conexiune refuzată: ${err.message}`;
+            } finally {
+                btnSubmitOrchestrate.disabled = false;
+                document.getElementById("spinner-orchestrate").style.display = "none";
+                document.getElementById("btn-text-orchestrate").textContent = "Execută fluxul text";
+                localStorage.setItem("successfulRuns", successfulRuns);
+                localStorage.setItem("totalRuns", totalRuns);
+                updateLocalMetricsUI();
+            }
+        });
+
+        // Submit: Research & Advanced Report (Pipeline complet 5 Agenți în lanț A2A)
+        async function runResearch(resultType, spinnerId) {
+            const query = document.getElementById("research-query").value.trim();
+            if (!query) {
+                alert("Vă rugăm să introduceți un subiect pentru cercetare.");
+                return;
+            }
+
+            document.getElementById("monitor-header").textContent = `Monitorizare Execuție A2A (Flux Complet Cercetare)`;
+            
+            // Set active states
+            document.getElementById("title-1").textContent = "[✓] Agent Coordonator";
+            document.getElementById("badge-1").className = "status-badge badge-active";
+            document.getElementById("badge-1").textContent = "Rulare";
+            document.getElementById("details-1").innerHTML = `Lansare cerere de cercetare pentru '${query}' în lanț A2A...`;
+            document.getElementById("meta-1").style.display = "none";
+            document.getElementById("step-1").classList.add("active-step");
+
+            document.getElementById("title-2").textContent = "[·] Agent de Cercetare";
+            document.getElementById("badge-2").className = "status-badge badge-pending";
+            document.getElementById("badge-2").textContent = "În așteptare";
+            document.getElementById("details-2").innerHTML = "Așteaptă primirea sarcinii.";
+            document.getElementById("meta-2").style.display = "none";
+            document.getElementById("step-2").classList.remove("active-step");
+
+            document.getElementById("title-3").textContent = "[·] Agent de Validare Surse";
+            document.getElementById("badge-3").className = "status-badge badge-pending";
+            document.getElementById("badge-3").textContent = "În așteptare";
+            document.getElementById("details-3").innerHTML = "Așteaptă evaluarea calitativă.";
+            document.getElementById("meta-3").style.display = "none";
+            document.getElementById("step-3").classList.remove("active-step");
+
+            document.getElementById("title-4").textContent = "[·] Agent de Rezumare";
+            document.getElementById("badge-4").className = "status-badge badge-pending";
+            document.getElementById("badge-4").textContent = "În așteptare";
+            document.getElementById("details-4").innerHTML = "Așteaptă sinteza textului.";
+            document.getElementById("meta-4").style.display = "none";
+            document.getElementById("step-4").classList.remove("active-step");
+
+            document.getElementById("title-5").textContent = "[·] Agent de Export";
+            document.getElementById("badge-5").className = "status-badge badge-pending";
+            document.getElementById("badge-5").textContent = "În așteptare";
+            document.getElementById("details-5").innerHTML = "Așteaptă generarea documentelor descărcabile.";
+            document.getElementById("meta-5").style.display = "none";
+            document.getElementById("step-5").classList.remove("active-step");
+
+            document.getElementById("badge-6").className = "status-badge badge-pending";
+            document.getElementById("details-6").innerHTML = "Rezultatele finale vor fi gata în curând.";
+            document.getElementById("step-6").classList.remove("active-step");
+
+            document.getElementById("btn-research-summary").disabled = true;
+            document.getElementById("btn-research-report").disabled = true;
+            document.getElementById(spinnerId).style.display = "inline-block";
+            
+            // Ascunde mesajul anterior de descărcare
+            document.getElementById("export-status-message").style.display = "none";
+
+            try {
+                const payload = {
+                    query: query,
+                    result_type: resultType,
+                    priority: parseInt(document.getElementById("priority-research").value)
+                };
+
+                const res = await fetch("/research", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+                totalRuns++;
+                localStorage.setItem("totalRuns", totalRuns);
+
+                if (res.ok && data.status === "completed") {
+                    successfulRuns++;
+                    localStorage.setItem("successfulRuns", successfulRuns);
+                    const result = data.result;
+                    const elapsed = data.processing_time;
+
+                    // Salvăm numele fișierelor pre-generate
+                    activePdfFilename = result.pdf_filename;
+                    activeDocxFilename = result.docx_filename;
+
+                    // Update UI 1: Coordonator
+                    document.getElementById("badge-1").className = "status-badge badge-success";
+                    document.getElementById("badge-1").textContent = "Finalizat";
+                    document.getElementById("details-1").innerHTML = `A finalizat fluxul. Răspuns întors cu succes.`;
+                    document.getElementById("meta-1").style.display = "grid";
+                    document.getElementById("val-agent-1").textContent = "coordinator";
+                    document.getElementById("val-time-1").textContent = `${elapsed.toFixed(3)}s`;
+                    document.getElementById("val-msg-1").textContent = data.message_id;
+                    document.getElementById("step-1").classList.remove("active-step");
+
+                    // Update UI 2: Researcher
+                    document.getElementById("title-2").textContent = "[✓] Agent de Cercetare";
+                    document.getElementById("badge-2").className = "status-badge badge-success";
+                    document.getElementById("badge-2").textContent = "Finalizat";
+                    document.getElementById("details-2").innerHTML = `A colectat date brute.`;
+                    document.getElementById("meta-2").style.display = "grid";
+                    document.getElementById("val-agent-2").textContent = "researcher";
+                    document.getElementById("val-time-2").textContent = `${result.researcher_time.toFixed(3)}s`;
+                    document.getElementById("val-msg-2").textContent = "A2A/Intra-rețea";
+
+                    // Update UI 3: Validator
+                    document.getElementById("title-3").textContent = "[✓] Agent de Validare Surse";
+                    document.getElementById("badge-3").className = "status-badge badge-success";
+                    document.getElementById("badge-3").textContent = "Finalizat";
+                    document.getElementById("details-3").innerHTML = `Evaluare finalizată. Trust Score: ${result.trust_score}`;
+                    document.getElementById("meta-3").style.display = "grid";
+                    document.getElementById("val-agent-3").textContent = "validator";
+                    document.getElementById("val-time-3").textContent = `${result.validator_time.toFixed(3)}s`;
+                    document.getElementById("val-msg-3").textContent = "A2A/Intra-rețea";
+
+                    // Update UI 4: Summarizer
+                    document.getElementById("title-4").textContent = "[✓] Agent de Rezumare";
+                    document.getElementById("badge-4").className = "status-badge badge-success";
+                    document.getElementById("badge-4").textContent = "Finalizat";
+                    document.getElementById("details-4").innerHTML = `A realizat sinteza textului academic.`;
+                    document.getElementById("meta-4").style.display = "grid";
+                    document.getElementById("val-agent-4").textContent = "summarizer";
+                    document.getElementById("val-time-4").textContent = `${result.summarizer_time.toFixed(3)}s`;
+                    document.getElementById("val-msg-4").textContent = "A2A/Intra-rețea";
+
+                    // Update UI 5: Exporter
+                    document.getElementById("title-5").textContent = "[✓] Agent de Export";
+                    document.getElementById("badge-5").className = "status-badge badge-success";
+                    document.getElementById("badge-5").textContent = "Finalizat";
+                    document.getElementById("details-5").innerHTML = `Fișiere pre-generate: PDF și DOCX create cu succes.`;
+                    document.getElementById("meta-5").style.display = "grid";
+                    document.getElementById("val-agent-5").textContent = "exporter";
+                    document.getElementById("val-time-5").textContent = `${result.exporter_time.toFixed(3)}s`;
+                    document.getElementById("val-msg-5").textContent = "A2A/Intra-rețea";
+
+                    // Update UI 6: Result
+                    document.getElementById("badge-6").className = "status-badge badge-success";
+                    document.getElementById("badge-6").textContent = "Succes";
+                    document.getElementById("details-6").innerHTML = "Rezultatele complete și fișierele sunt pregătite.";
+
+                    // Redare Rezultate principale
+                    document.getElementById("results-display-card").style.display = "flex";
+                    document.getElementById("result-main-title").textContent = result.title;
+                    document.getElementById("result-summary-text").textContent = result.summary;
+                    document.getElementById("export-buttons-group").style.display = "block";
+
+                    const pointsList = document.getElementById("result-key-points-list");
+                    pointsList.innerHTML = result.key_points.map(p => `<li class="key-point-item">${p}</li>`).join("");
+
+                    if (resultType === "Raport") {
+                        document.getElementById("result-report-group").style.display = "block";
+                        document.getElementById("result-report-text").textContent = result.report;
+                    } else {
+                        document.getElementById("result-report-group").style.display = "none";
+                    }
+
+                    // Panou Credibilitate Surse
+                    document.getElementById("validator-display-card").style.display = "flex";
+                    document.getElementById("val-trust-score-value").textContent = result.trust_score;
+
+                    // Redare Surse Verificate
+                    const verList = document.getElementById("val-verified-sources-list");
+                    verList.innerHTML = result.verified_sources.map(src => `<li class="source-validated-item verified"><a href="${src}" target="_blank" style="color:var(--primary-action); font-weight:600; text-decoration:none;">${src}</a></li>`).join("");
+
+                    // Redare Surse Respinte
+                    const rejGroup = document.getElementById("val-rejected-group");
+                    const rejList = document.getElementById("val-rejected-sources-list");
+                    if (result.rejected_sources && result.rejected_sources.length > 0) {
+                        rejGroup.style.display = "block";
+                        rejList.innerHTML = result.rejected_sources.map(src => `<li class="source-validated-item rejected">${src}</li>`).join("");
+                    } else {
+                        rejGroup.style.display = "none";
+                    }
+
+                    totalMessagesSent += 5;
+                    totalLatencies += elapsed;
+                    localStorage.setItem("totalMessagesSent", totalMessagesSent);
+                    localStorage.setItem("totalLatencies", totalLatencies);
+                    updateLocalMetricsUI();
+
+                    // Reîncărcare date (istoric & metrici SQLite)
+                    loadData();
+
+                } else {
+                    document.getElementById("badge-2").className = "status-badge badge-error";
+                    document.getElementById("badge-2").textContent = "Eroare";
+                    document.getElementById("details-2").innerHTML = data.error || "Eroare rețea.";
+                }
+            } catch (err) {
+                document.getElementById("badge-2").className = "status-badge badge-error";
+                document.getElementById("details-2").innerHTML = `Eroare conexiune: ${err.message}`;
+            } finally {
+                document.getElementById("btn-research-summary").disabled = false;
+                document.getElementById("btn-research-report").disabled = false;
+                document.getElementById(spinnerId).style.display = "none";
+                localStorage.setItem("successfulRuns", successfulRuns);
+                localStorage.setItem("totalRuns", totalRuns);
+                updateLocalMetricsUI();
+            }
+        }
+
+        document.getElementById("btn-research-summary").addEventListener("click", () => {
+            runResearch("Rezumat", "spinner-research-sum");
+        });
+
+        document.getElementById("btn-research-report").addEventListener("click", () => {
+            runResearch("Raport", "spinner-research-rep");
+        });
+
+        // ClickHandlers pentru butoanele de Export
+        async function triggerDownload(filename) {
+            if (!filename) {
+                alert("Nu s-a detectat niciun fișier pre-generat.");
+                return;
+            }
+            
+            // Deschidere directă link de download în tab nou / download prompt
+            window.open(`/download/${filename}`, '_blank');
+            
+            // Afișează mesajul de succes cerut în UI
+            const statusMsg = document.getElementById("export-status-message");
+            statusMsg.style.display = "block";
+            
+            // Increment local value instantly for precision & reactivity
+            const docVal = document.getElementById("metric-generated-documents");
+            if (docVal) {
+                docVal.textContent = parseInt(docVal.textContent || "0") + 1;
+            }
+            
+            // Reincărcare metrici generale pentru a incrementa contorul de documente generate live
+            setTimeout(loadData, 1000);
+        }
+
+        document.getElementById("btn-export-pdf").addEventListener("click", () => {
+            triggerDownload(activePdfFilename);
+        });
+
+        document.getElementById("btn-export-docx").addEventListener("click", () => {
+            triggerDownload(activeDocxFilename);
+        });
+    </script>
+</body>
+</html>

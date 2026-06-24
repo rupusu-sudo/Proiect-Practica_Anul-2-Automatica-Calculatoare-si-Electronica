@@ -1,0 +1,21 @@
+[project]
+name = "a2a_project"
+
+# Point Pyrefly to the venv Python interpreter so it resolves installed packages
+python_interpreter = "venv/Scripts/python.exe"
+
+# Additional search paths for module resolution
+search_path = [
+    ".",
+    "venv/Lib/site-packages",
+]
+
+# Exclude virtual environment and caches from analysis
+exclude = [
+    "venv/",
+    ".pytest_cache/",
+    "__pycache__/",
+    "__pyrefly_virtual__/",
+    "**/__pyrefly_virtual__/**",
+    "**/inmemory/**"
+]
